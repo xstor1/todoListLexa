@@ -27,7 +27,7 @@ mysqlConnection.connect((err) => {
         console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
     }
 });
-app.listen(3000, () => {
+app.listen(process.env.PORT || 5000, () => {
     console.log('express started...');
 });
 
