@@ -28,7 +28,7 @@ mysqlConnection.connect((err) => {
         console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
     }
 });
-app.listen(3000, () => {
+app.listen(80, () => {
     console.log('express started...');
 });
 
