@@ -1,3 +1,4 @@
+try {
 const mysql = require('mysql');
 const express = require('express');
 const jwt = require("jsonwebtoken");
@@ -27,7 +28,7 @@ mysqlConnection.connect((err) => {
         console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
     }
 });
-app.listen(process.env.PORT || 5000, () => {
+app.listen(3000, () => {
     console.log('express started...');
 });
 
@@ -310,5 +311,10 @@ function getUserFromToken(token, callback) {
 }
 
 
-
+}
+catch (e)
+{
+	console.log(e);
+	console.log('někde se stala chyba');
+}
 
