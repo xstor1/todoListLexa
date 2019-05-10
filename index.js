@@ -265,7 +265,7 @@ try {
                 console.log(req.body);
                 mysqlConnection.query('SELECT * FROM users WHERE `email` = ? and `password` = ?', [req.body.email, req.body.password], (err, rows, fields) => {
                     console.log("fields" + fields);
-                    if (rows.length !== 0) {
+                    if (rows.length !== 0 && rows != null) {
                         var today = new Date();
                         var expiresAt = new Date(today.setHours(today.getHours() + 8));
                         const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
