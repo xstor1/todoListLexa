@@ -23,6 +23,7 @@ try {
     });
 
     function mysqlConnect(callback) {
+        mysqlConnection.end();
         mysqlConnection.connect((err) => {
             if (!err) {
                 console.log("db connection succeded");
