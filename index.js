@@ -23,7 +23,6 @@ try {
     });
 
     function mysqlConnect(callback) {
-        mysqlConnection.end();
         mysqlConnection.connect((err) => {
             if (!err) {
                 console.log("db connection succeded");
@@ -74,6 +73,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
     app.get('/todoList/all/:id', (req, res) => {
         mysqlConnect((connected) => {
@@ -89,6 +89,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
     app.post('/todoList/create', (req, res) => {
@@ -111,6 +112,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
@@ -135,6 +137,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 //todolist delete
@@ -158,6 +161,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
     app.get('/todo/byTodoList/:id', (req, res) => {
         console.log("works");
@@ -196,6 +200,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
@@ -220,6 +225,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
@@ -251,6 +257,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
@@ -286,6 +293,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
@@ -305,6 +313,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 //user delete
@@ -334,6 +343,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 //get users podle idecek
@@ -351,6 +361,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
     app.post('/users/logout', (req, res) => {
         mysqlConnect((connected) => {
@@ -366,6 +377,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 //get user podle mailu
@@ -383,6 +395,7 @@ try {
                 res.send("DB Connection error");
             }
         });
+        mysqlConnection.end();
     });
 
 
