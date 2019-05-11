@@ -15,7 +15,7 @@ try {
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
     });
-    var mysqlConnection = mysql.createConnection({
+    var mysqlConnection = mysql.createPool({
         host: 'eu-cdbr-west-02.cleardb.net',
         user: 'b393a788a6ce87',
         password: '746fc67c',
