@@ -32,7 +32,7 @@ try {
         return callback(true);
     }
     }
-        mysqlConnection.connect((err) => {
+        /*mysqlConnection.connect((err) => {
             if (!err) {
                 console.log("db connection succeded");
 
@@ -40,7 +40,7 @@ try {
                 console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
 
             }
-        });
+        });*/
 
 
     app.listen(process.env.PORT, () => {
