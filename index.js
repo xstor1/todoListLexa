@@ -2,6 +2,8 @@ try {
     const mysql = require('mysql');
     const express = require('express');
     const jwt = require("jsonwebtoken");
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
     const Q = require('q');
     const Promise = require('promise');
     var app = express();
@@ -23,24 +25,22 @@ try {
     });
 
     function mysqlConnect(callback) {
-    if(mysqlConnection.state === 'disconnected')
-    {
-        return callback(false);
+        if (mysqlConnection.state === 'disconnected') {
+            return callback(false);
+        } else {
+            return callback(true);
+        }
     }
-    else
-    {
-        return callback(true);
-    }
-    }
-        /*mysqlConnection.connect((err) => {
-            if (!err) {
-                console.log("db connection succeded");
 
-            } else {
-                console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
+    /*mysqlConnection.connect((err) => {
+        if (!err) {
+            console.log("db connection succeded");
 
-            }
-        });*/
+        } else {
+            console.log('DB connection failed \n error:' + JSON.stringify(err, undefined, 2));
+
+        }
+    });*/
 
 
     app.listen(process.env.PORT, () => {
@@ -79,7 +79,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
     app.get('/todoList/all/:id', (req, res) => {
         mysqlConnect((connected) => {
@@ -95,7 +95,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
     app.post('/todoList/create', (req, res) => {
@@ -118,7 +118,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 
@@ -143,7 +143,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 //todolist delete
@@ -167,7 +167,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
     app.get('/todo/byTodoList/:id', (req, res) => {
         console.log("works");
@@ -206,7 +206,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 
@@ -231,7 +231,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 
@@ -263,7 +263,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 
@@ -273,33 +273,40 @@ try {
             if (connected === true) {
                 console.log(req.body);
                 mysqlConnection.query('SELECT * FROM users WHERE `email` = ? and `password` = ?', [req.body.email, req.body.password], (err, rows, fields) => {
-                    console.log("fields" + fields);
-                    if (rows.length !== 0 && rows != null) {
-                        var today = new Date();
-                        var expiresAt = new Date(today.setHours(today.getHours() + 8));
-                        const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
-                        console.log("token" + token);
-                        console.log("expires" + expiresAt);
-                        mysqlConnection.query('INSERT INTO `tokens` ( `token`, `expiresAt`, `userId`) VALUES (?,?,?)', [token, expiresAt.toISOString().slice(0, 19).replace('T', ' '), rows[0].idUsers], (err1, rows1, fields) => {
-                            console.log(rows);
-                            let obj = {
-                                token: token,
-                                userId: rows[0].idUsers
-                            };
-                            res.send(obj);
-                        });
+                        console.log("fields" + fields);
+                        if (rows.length !== 0 && rows != null) {
+                            bcrypt.compare(req.body.password, rows[0].password, function (err, res) {
+                                if (res == true) {
+                                    var today = new Date();
+                                    var expiresAt = new Date(today.setHours(today.getHours() + 8));
+                                    const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
+                                    console.log("token" + token);
+                                    console.log("expires" + expiresAt);
+                                    mysqlConnection.query('INSERT INTO `tokens` ( `token`, `expiresAt`, `userId`) VALUES (?,?,?)', [token, expiresAt.toISOString().slice(0, 19).replace('T', ' '), rows[0].idUsers], (err1, rows1, fields) => {
+                                        console.log(rows);
+                                        let obj = {
+                                            token: token,
+                                            userId: rows[0].idUsers
+                                        };
+                                        res.send(obj);
+                                    });
 
-                    } else {
-                        res.send("false");
-                        console.log(rows);
-                        console.log(err);
+                                }
+                                else{
+                                    res.send('not authenticated');
+                                }
+                            });
+                        } else {
+                            res.send("false");
+                            console.log(rows);
+                            console.log(err);
+                        }
                     }
-                });
+                );
             } else {
                 res.send("DB Connection error");
             }
         });
-  
     });
 
 
@@ -319,7 +326,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 //user delete
@@ -337,19 +344,23 @@ try {
 //user register
     app.post('/users/register', (req, res) => {
         mysqlConnect((connected) => {
-            if (connected === true) {
-                mysqlConnection.query('INSERT INTO `users` ( `email`, `password`) VALUES (?,?)', [req.body.email, req.body.password], (err, rows, fields) => {
-                    if (!err) {
-                        console.log(rows);
-                        res.send(rows)
-                    } else
-                        console.log(err);
-                });
-            } else {
-                res.send("DB Connection error");
+                if (connected === true) {
+                    let password = req.body.password;
+                    bcrypt.hash(password, saltRounds, function (err, hash) {
+                        password = hash;
+                        mysqlConnection.query('INSERT INTO `users` ( `email`, `password`) VALUES (?,?)', [req.body.email, password], (err, rows, fields) => {
+                            if (!err) {
+                                console.log(rows);
+                                res.send(rows)
+                            } else
+                                console.log(err);
+                        });
+                    });
+                } else {
+                    res.send("DB Connection error");
+                }
             }
-        });
-  
+        );
     });
 
 //get users podle idecek
@@ -367,7 +378,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
     app.post('/users/logout', (req, res) => {
         mysqlConnect((connected) => {
@@ -383,7 +394,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 //get user podle mailu
@@ -401,7 +412,7 @@ try {
                 res.send("DB Connection error");
             }
         });
-  
+
     });
 
 
