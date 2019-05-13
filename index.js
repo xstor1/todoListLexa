@@ -3,6 +3,7 @@ try {
     const express = require('express');
     const jwt = require("jsonwebtoken");
     const bcrypt = require('bcrypt');
+    const sanitizer = require('sanitizer');
     const saltRounds = 10;
     const Q = require('q');
     const Promise = require('promise');
@@ -103,6 +104,9 @@ try {
             if (connected === true) {
                 authenticate(req.body.token, (result => {
                     if (result === true) {
+                        req.body.name = sanitizer.escape(req.body.name);
+                        req.body.descritpion = sanitizer.escape(req.body.description);
+                        req.body.user_id = sanitizer.escape(req.body.user_id);
                         console.log(req.body);
                         mysqlConnection.query('INSERT INTO `todolist` ( `name`, `description`, `user_id`) VALUES (?,?,?)', [req.body.name, req.body.description, req.body.user_id], (err, rows, fields) => {
                             if (!err) {
@@ -128,6 +132,9 @@ try {
             if (connected === true) {
                 authenticate(req.body['token'], (result => {
                     if (result === true) {
+                        req.body.name = sanitizer.escape(req.body.name);
+                        req.body.descritpion = sanitizer.escape(req.body.description);
+                        req.body.user_id = sanitizer.escape(req.body.user_id);
                         console.log(req.body);
                         mysqlConnection.query('UPDATE `todolist` SET `name`= ?, `description`=?, `user_id`=?', [req.body.name, req.body.description, req.body.user_id], (err, rows, fields) => {
                             if (!err) {
@@ -191,6 +198,9 @@ try {
             if (connected === true) {
                 authenticate(req.body.token, (result => {
                     if (result === true) {
+                        req.body.name = sanitizer.escape(req.body.name);
+                        req.body.descritpion = sanitizer.escape(req.body.description);
+                        req.body.todoList_id = sanitizer.escape(req.body.todoList_id);
                         console.log(req.body);
                         mysqlConnection.query('INSERT INTO `todo` ( `name`, `description`, `todoList_id`) VALUES (?,?,?)', [req.body.name, req.body.description, req.body.todoList_id], (err, rows, fields) => {
                             if (!err) {
@@ -216,6 +226,9 @@ try {
             if (connected === true) {
                 authenticate(req.body.token, (result => {
                     if (result === true) {
+                        req.body.name = sanitizer.escape(req.body.name);
+                        req.body.descritpion = sanitizer.escape(req.body.description);
+                        req.body.todoList_id = sanitizer.escape(req.body.todoList_id);
                         console.log(req.body);
                         mysqlConnection.query('UPDATE `todo` SET `name`=?, `description`=?,completed = ?, `todoList_id`=? where id= ?', [req.body.name, req.body.description, req.body.completed, req.body.todoList_id, req.body.id], (err, rows, fields) => {
                             if (!err) {
@@ -273,35 +286,34 @@ try {
             if (connected === true) {
                 console.log(req.body);
                 mysqlConnection.query('SELECT * FROM users WHERE `email` = ?', [req.body.email], (err, rows, fields) => {
-                        console.log("fields" + fields);
-                        if (rows.length !== 0 && rows != null) {
-                            bcrypt.compare(req.body.password, rows[0].password, function (err, resp) {
-                                if (resp == true) {
-                                    var today = new Date();
-                                    var expiresAt = new Date(today.setHours(today.getHours() + 8));
-                                    const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
-                                    console.log("token" + token);
-                                    console.log("expires" + expiresAt);
-                                    mysqlConnection.query('INSERT INTO `tokens` ( `token`, `expiresAt`, `userId`) VALUES (?,?,?)', [token, expiresAt.toISOString().slice(0, 19).replace('T', ' '), rows[0].idUsers], (err1, rows1, fields) => {
-                                        console.log(rows);
-                                        let obj = {
-                                            token: token,
-                                            userId: rows[0].idUsers
-                                        };
-                                        res.send(obj);
-                                    });
+                    console.log("fields" + fields);
+                    if (rows.length !== 0 && rows != null) {
+                        bcrypt.compare(req.body.password, rows[0].password, function (err, resp) {
+                            if (resp == true) {
+                                var today = new Date();
+                                var expiresAt = new Date(today.setHours(today.getHours() + 8));
+                                const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
+                                console.log("token" + token);
+                                console.log("expires" + expiresAt);
+                                mysqlConnection.query('INSERT INTO `tokens` ( `token`, `expiresAt`, `userId`) VALUES (?,?,?)', [token, expiresAt.toISOString().slice(0, 19).replace('T', ' '), rows[0].idUsers], (err1, rows1, fields) => {
+                                    console.log(rows);
+                                    let obj = {
+                                        token: token,
+                                        userId: rows[0].idUsers
+                                    };
+                                    res.send(obj);
+                                });
 
-                                }
-                                else{
-                                    res.send("not authenticated");
-                                }
-                            });
-                        } else {
-                            res.send("false");
-                            console.log(rows);
-                            console.log(err);
-                        }
-                    });
+                            } else {
+                                res.send("not authenticated");
+                            }
+                        });
+                    } else {
+                        res.send("false");
+                        console.log(rows);
+                        console.log(err);
+                    }
+                });
             } else {
                 res.send("DB Connection error");
             }
@@ -310,7 +322,7 @@ try {
 
 
 //user update
-    app.post('/users/update', (req, res) => {
+  /*  app.post('/users/update', (req, res) => {
         mysqlConnect((connected) => {
             if (connected === true) {
                 console.log(req.body);
@@ -326,7 +338,7 @@ try {
             }
         });
 
-    });
+    });*/
 
 //user delete
     /*
@@ -347,6 +359,7 @@ try {
                     let password = req.body.password;
                     bcrypt.hash(password, saltRounds, function (err, hash) {
                         password = hash;
+                        req.body.email = sanitizer.escape(req.body.email);
                         mysqlConnection.query('INSERT INTO `users` ( `email`, `password`) VALUES (?,?)', [req.body.email, password], (err, rows, fields) => {
                             if (!err) {
                                 console.log(rows);
