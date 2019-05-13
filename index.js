@@ -275,8 +275,8 @@ try {
                 mysqlConnection.query('SELECT * FROM users WHERE `email` = ?', [req.body.email], (err, rows, fields) => {
                         console.log("fields" + fields);
                         if (rows.length !== 0 && rows != null) {
-                            bcrypt.compare(req.body.password, rows[0].password, function (err, res) {
-                                if (res == true) {
+                            bcrypt.compare(req.body.password, rows[0].password, function (err, resp) {
+                                if (resp == true) {
                                     var today = new Date();
                                     var expiresAt = new Date(today.setHours(today.getHours() + 8));
                                     const token = jwt.sign({email: req.body.email, expAt: expiresAt}, "secret");
@@ -293,7 +293,7 @@ try {
 
                                 }
                                 else{
-                                    res.send('not authenticated');
+                                    res.send("not authenticated");
                                 }
                             });
                         } else {
