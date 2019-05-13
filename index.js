@@ -272,7 +272,7 @@ try {
         mysqlConnect((connected) => {
             if (connected === true) {
                 console.log(req.body);
-                mysqlConnection.query('SELECT * FROM users WHERE `email` = ?', [req.body.email, (err, rows, fields) => {
+                mysqlConnection.query('SELECT * FROM users WHERE `email` = ?', [req.body.email], (err, rows, fields) => {
                         console.log("fields" + fields);
                         if (rows.length !== 0 && rows != null) {
                             bcrypt.compare(req.body.password, rows[0].password, function (err, res) {
@@ -301,8 +301,7 @@ try {
                             console.log(rows);
                             console.log(err);
                         }
-                    }
-                );
+                    });
             } else {
                 res.send("DB Connection error");
             }
